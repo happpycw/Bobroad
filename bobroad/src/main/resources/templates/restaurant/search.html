@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <title>식당 검색</title>
+  <link rel="stylesheet" href="/css/restaurant/search.css">
+</head>
+<body>
+<main layout:fragment="content">
+
+
+  <div class="search-box">
+    <p class="main-title">🍽️ 찾으시는 식당이 있으신가요?</p>
+
+    <form method="get" action="/search/result" class="search" onsubmit="return validateForm()">
+      <input type="text" name="restaurantKeyword" id="restaurantKeyword" placeholder="식당명을 입력하세요">
+      <button type="submit">검색</button>
+    </form>
+  </div>
+
+
+
+  <script>
+    function validateForm(){
+      const keyword = document.getElementById('restaurantKeyword').value.trim();
+      if(!keyword){
+        alert("식당명을 입력해 주세요.");
+        return false;
+      }
+      return true;
+    }
+
+  </script>
+
+</main>
+</body>
+</html>

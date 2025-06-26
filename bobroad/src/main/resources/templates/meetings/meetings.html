@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}"
+>
+<head>
+  <meta charset="UTF-8">
+  <title>모임</title>
+  <link rel="stylesheet" th:href="@{/css/meeting/meeting.css}"/>
+</head>
+<body>
+<main layout:fragment="content">
+  <!-- 모임 리스트 -->
+  <div>
+    <div class="meeting-header">
+      <h4>나의 참여 모임</h4>
+      <div style="display: flex; gap: 10px;">
+        <a class="tab" onclick="openPopup(); return false;">🔔</a>
+        <a href="/meetings/regist" class="create">모임 생성하기</a>
+      </div>
+
+    </div>
+
+    <div class="empty" th:if="${#lists.isEmpty(meetingList)}">
+      참여 중인 모임이 없습니다.<br/>
+      모임을 만들어서 식사 메뉴를 손쉽게 선정해 보세요!
+    </div>
+
+    <div class="scroll-container">
+      <div th:each="meeting:${meetingList}" class="group-card">
+        <div class="group-info">
+          <div>
+            <div th:text="${meeting.title}" style="font-size: 25px; font-weight: bold"></div>
+            <div th:text="${meeting.description}"
+                 style="font-weight: bold; margin-bottom: 2vh;"></div>
+            <div>모임 생성자: <span th:text="${meeting.user.nickname}"></span></div>
+            <div th:switch="${meeting.purpose.name()}">
+              모임 유형:
+              <span th:case="'LUNCH'">점심</span>
+              <span th:case="'DINING_TOGETHER'">회식</span>
+              <span th:case="'STUDY'">스터디</span>
+            </div>
+            <div>더치페이 여부:
+              <span th:if="${meeting.isDutch}" th:text="Y"></span>
+              <span th:unless="${meeting.isDutch}" th:text="N"></span>
+            </div>
+            <div>
+              생성일자: <span th:text="${#temporals.format(meeting.createdAt, 'yyyy년 MM월 dd일')}"></span>
+            </div>
+          </div>
+        </div>
+        <a th:href="@{'/meetings/detail/'+${meeting.id}}" class="move">이동</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openPopup(url) {
+      const popupWidth = 1000;
+      const popupHeight = 700;
+
+      const screenLeft = window.screenLeft !== undefined ? window.screenLeft : screen.left;
+      const screenTop = window.screenTop !== undefined ? window.screenTop : screen.top;
+
+      const screenWidth = window.innerWidth || document.documentElement.clientWidth || screen.width;
+      const screenHeight = window.innerHeight || document.documentElement.clientHeight
+          || screen.height;
+
+      const left = screenLeft + (screenWidth - popupWidth) / 2;
+      const top = screenTop + (screenHeight - popupHeight) / 2;
+
+      window.open(
+          "notification/modal/alarm.html",
+          'popupWindow',
+          `width=${popupWidth},height=${popupHeight},left=${left},top=${top},resizable=yes,scrollbars=yes`
+      );
+
+      // 초대 수락 후, 리스트 업데이트
+      const popupCheck = setInterval(function () {
+        if (popupWindow.closed) {
+          clearInterval(popupCheck);
+          window.location.href = "/";
+        }
+      }, 500);
+    }
+  </script>
+</main>
+</body>
+</html>

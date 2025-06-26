@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin-layout-curation}">
+<head>
+    <meta charset="UTF-8">
+    <title layout:fragment="title">모든 모임 목록</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+          rel="stylesheet" crossorigin="anonymous">
+</head>
+<body>
+<th:block th:replace="~{admin-fragments :: frg_sidenav}"/>
+
+<section layout:fragment="content" class="bg-gray-50 pt-8"
+         style="padding-left:20vw; padding-right:20vw; padding-top:2vw; width:100%;">
+    <div class="max-w-4xl mx-auto px-[20vw]">
+        <div class="mb-6">
+            <h2 class="text-2xl font-semibold mb-2">모든 모임 목록</h2>
+            <div class="flex items-center">
+                <input type="text" id="searchKeyword"
+                       placeholder="모임 제목을 입력하세요."
+                       class="border rounded-l-lg px-3 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-blue-400"/>
+                <button id="searchButton"
+                        class="bg-gray-700 hover:bg-blue-700 text-white px-4 py-2 rounded-r-lg">
+                    검색
+                </button>
+            </div>
+        </div>
+
+        <div id="meetingList" style="max-height:80vh; overflow-y:auto;">
+            <div id="cardsContainer" class="max-w-4xl mx-auto space-y-4">
+                <div th:each="m : ${meetings}"
+                     class="meeting-card flex items-center justify-between bg-white border rounded-lg shadow-sm p-4 hover:shadow-md transition"
+                     th:attr="data-meeting-id=${m.id}">
+                    <div>
+                        <h3 class="meeting-title text-lg font-semibold mb-1" th:text="${m.title}">모임 제목</h3>
+                        <p class="text-sm text-gray-600 mb-1" th:text="${m.description}">간단한 설명</p>
+                        <p class="text-sm text-gray-600 mb-1">
+                            <span class="font-medium">생성자:</span>
+                            <span th:text="${m.user.nickname}">닉네임</span>
+                        </p>
+                        <p class="text-sm text-gray-600 mb-1">
+                            <span class="font-medium">모임목적:</span>
+                            <span th:text="${m.purpose.displayName}">모임목적</span>
+                        </p>
+                        <p class="text-sm text-gray-600">
+                            <span class="font-medium">더치페이:</span>
+                            <span th:text="${m.isDutch()} ? 'O' : 'X'">O/X</span>
+                        </p>
+                    </div>
+                    <div class="space-x-2">
+                        <button type="button"
+                                class="btn-detail px-3 py-1 bg-gray-700 text-white rounded btn-show-members">
+                            멤버 보기
+                        </button>
+                        <button type="button"
+                                class="btn-delete px-3 py-1 bg-red-600 text-white rounded btn-delete-meeting">
+                            삭제
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="searchModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content rounded-4">
+                <div class="modal-header bg-gray-100 py-3 px-6">
+                    <h5 class="modal-title">검색 결과</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4" style="max-height:70vh; overflow-y:auto;">
+                    <div id="searchResultsContainer" class="space-y-4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="memberModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content rounded-4">
+                <div class="modal-header bg-gray-100 py-3 px-6">
+                    <h5 id="memberModalLabel" class="modal-title text-lg font-semibold">모임 멤버 목록</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-6">
+                    <ul id="memberListContainer"
+                        class="list-disc list-inside space-y-2 overflow-auto"
+                        style="max-height:60vh;"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchBtn      = document.getElementById('searchButton');
+            const searchInput    = document.getElementById('searchKeyword');
+            const cardsContainer = document.getElementById('cardsContainer');
+            const memberModal    = new bootstrap.Modal(document.getElementById('memberModal'));
+            const memberList     = document.getElementById('memberListContainer');
+            const originalCards = Array.from(
+                document.querySelectorAll('#cardsContainer .meeting-card')
+            ).map(card => card.cloneNode(true));
+
+            function showMembers(meetingId) {
+                memberList.innerHTML = '';
+                fetch(`/api/admin/meetingmember/${meetingId}`)
+                    .then(r => r.ok ? r.json() : Promise.reject(r.status))
+                    .then(json => {
+                        const arr = json.data || [];
+                        if (!arr.length) {
+                            memberList.innerHTML = '<li class="text-gray-700">가입된 멤버가 없습니다.</li>';
+                        } else {
+                            arr.forEach(u => {
+                                const li = document.createElement('li');
+                                li.className = 'text-gray-700';
+                                li.textContent = u.nickname;
+                                memberList.appendChild(li);
+                            });
+                        }
+                    })
+                    .finally(() => memberModal.show());
+            }
+
+            document.body.addEventListener('click', function(e) {
+                // 멤버 보기
+                const showBtn = e.target.closest('.btn-show-members');
+                if (showBtn) {
+                    const card = showBtn.closest('.meeting-card');
+                    showMembers(card.getAttribute('data-meeting-id'));
+                    return;
+                }
+                // 삭제 버튼
+                const delBtn = e.target.closest('.btn-delete-meeting');
+                if (delBtn) {
+                    const card = delBtn.closest('.meeting-card');
+                    const meetingId = card.getAttribute('data-meeting-id');
+                    if (!confirm('정말 이 모임을 삭제하시겠습니까?')) {
+                        return;
+                    }
+                    fetch(`/api/admin/${meetingId}`, {
+                        method: 'DELETE'
+                    })
+                        .then(res => {
+                            if (res.ok) {
+                                card.remove();
+                            } else {
+                                return res.json().then(err => Promise.reject(err));
+                            }
+                        })
+                        .catch(err => {
+                            alert('삭제에 실패했습니다.');
+                            console.error(err);
+                        });
+                    return;
+                }
+            });
+
+            // 검색 기능
+            searchBtn.addEventListener('click', function() {
+                const kw = searchInput.value.trim().toLowerCase();
+                if (!kw) {
+                    alert('검색어를 입력해주세요.');
+                    return;
+                }
+
+                const filtered = originalCards.filter(card => {
+                    const title = card.querySelector('.meeting-title')?.textContent.toLowerCase() || '';
+                    return title.includes(kw);
+                });
+
+                cardsContainer.innerHTML = '';
+                if (filtered.length === 0) {
+                    cardsContainer.innerHTML = '<p class="text-center text-gray-500">검색 결과가 없습니다.</p>';
+                } else {
+                    filtered.forEach(card => {
+                        cardsContainer.appendChild(card.cloneNode(true));
+                    });
+                }
+            });
+        });
+    </script>
+</section>
+</body>
+</html>

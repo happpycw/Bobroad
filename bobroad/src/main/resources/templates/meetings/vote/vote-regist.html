@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}"
+>
+<head>
+  <meta charset="UTF-8">
+  <title>투표 생성</title>
+  <link rel="stylesheet" th:href="@{/css/meeting/vote-regist.css}" />
+</head>
+<body>
+<main layout:fragment="content">
+  <form th:action="@{'/meetings/vote-regist/'+${voteRegistRequest.getMeetingId()}}" th:object="${voteRegistRequest}" onsubmit="return confirmRegist();" method="post">
+    <input type="hidden" th:field="*{meetingId}" />
+    <div class="input-wrapper">
+      <div style="width: 32vw;">
+        <div class="title-wrapper">
+          <input type="text" th:field="*{title}" placeholder="투표 제목을 입력해주세요." class="invite-input"/>
+          <span th:if="${#fields.hasErrors('title')}" th:errors="*{title}"
+                class="error" style="margin-left: 5px;"></span>
+        </div>
+        <div class="detail-wrapper">
+          <div class="input-group">
+            <label th:field="*{description}">투표 설명</label>
+            <input type="text" th:field="*{description}" placeholder="투표 설명을 입력하세요.">
+          </div>
+
+          <div class="input-group">
+            <label th:field="*{meetingDate}">모임 일시</label>
+            <input type="datetime-local" th:field="*{meetingDate}">
+            <span th:if="${#fields.hasErrors('meetingDate')}" th:errors="*{meetingDate}" class="error"></span>
+          </div>
+
+          <div class="input-group">
+            <label th:field="*{endedAt}">투표 마감</label>
+            <input type="datetime-local" th:field="*{endedAt}">
+            <span th:if="${#fields.hasErrors('endedAt')}" th:errors="*{endedAt}" class="error"></span>
+          </div>
+
+          <div>
+            <th:block th:if="${isDutch}">
+              <label>더치페이 여부</label>
+              <div class="radio-group">
+                <label>
+                  <input type="radio" th:field="*{isDutch}" th:value="true"/>
+                  <span>네, 더치페이 예정이에요!</span>
+                </label>
+                <label>
+                  <input type="radio" th:field="*{isDutch}" th:value="false" checked />
+                  <span>아니요, 더치페이가 없어요!</span>
+                </label>
+              </div>
+            </th:block>
+          </div>
+        </div>
+      </div>
+
+      <div class="search">
+        <div style="display: flex; gap: 20px;">
+          <input type="text" id="restaurantKeyword" placeholder="식당명을 입력하세요">
+          <button type="button" onclick="searchRestaurants()" class="complete" style="width: 5vw;">검색</button>
+        </div>
+        <div>멤버와 함께 할 식당을 검색해서 찾아보세요!</div>
+        <div class="scroll-container">
+          <ul id="restaurantList" class="restaurant-list">
+            <!-- 식당 결과값 렌더링 -->
+          </ul>
+        </div>
+        <div id="selectedRestaurantName" class="error" style="margin-left: 5px; color: #333;">
+          <!-- 선택한 식당 출력 -->
+        </div>
+        <span th:if="${#fields.hasErrors('restaurantId')}" th:errors="*{restaurantId}"
+              class="error" style="margin-left: 5px;"></span>
+      </div>
+    </div>
+
+    <div class="button-wrapper">
+      <button type="submit" class="complete">투표 생성하기</button>
+    </div>
+  </form>
+  <script>
+    function confirmRegist() {
+      return confirm("투표를 생성하겠습니까?");
+    }
+
+    function searchRestaurants() {
+      const keyword = document.getElementById('restaurantKeyword').value.trim();
+      if (!keyword) {
+        alert("식당명을 입력하세요.");
+        return;
+      }
+
+      fetch(`/api/restaurants/search?keyword=${encodeURIComponent(keyword)}`)
+      .then(response => {
+        if (!response.ok) throw new Error("검색 실패");
+        return response.json();
+      })
+      .then(data => {
+        const results = data.data;
+        const listEl = document.getElementById('restaurantList');
+        listEl.innerHTML = "";
+
+        if (results.length === 0) {
+          listEl.innerHTML = `
+            <div class='no-results'>
+              검색 결과가 없습니다.
+            </div>`;
+          return;
+        }
+
+        results.forEach(res => {
+          const li = document.createElement("li");
+          li.className = "restaurant-card";
+          li.innerHTML = `
+            <a href="/restaurant/detail/${res.id}" target="_blank"
+                style="display: flex; justify-content: space-between; width: 100%;" >
+              <div>
+                <div style="font-size: 20px; font-weight: bold;">${res.name}</div>
+                <div>${res.roadAddress}</div>
+              </div>
+            </a>
+            <label style="display: flex; justify-items: end;">
+              <input type="radio" name="restaurantId" value="${res.id}">
+              <span></span>
+            </label>
+          `;
+
+          // 라디오 버튼 이벤트 추가
+          li.querySelector('input[type="radio"]').addEventListener('change', () => {
+            const selectedNameEl = document.getElementById('selectedRestaurantName');
+            selectedNameEl.textContent = `선택한 식당: ${res.name}`;
+          });
+
+          listEl.appendChild(li);
+        });
+      })
+      .catch(error => {
+        console.error(error);
+        alert("검색 중 오류가 발생했습니다.");
+      });
+    }
+  </script>
+</main>
+
+</body>
+</html>

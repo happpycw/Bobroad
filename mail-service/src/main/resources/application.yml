@@ -1,0 +1,60 @@
+app:
+  domain: http://localhost:8080
+
+server:
+  port: 8083
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+logging:
+  level:
+    root: info
+    org:
+      hibernate:
+        SQL: info
+        type:
+          descriptor:
+            sql: info
+      springframework:
+        cloud:
+          openfeign: info
+        client:
+          RestTemplate: info
+        security: info
+
+api:
+  key: "greppMailServer"
+
+spring:
+  mail:
+    host: smtp.gmail.com
+    username: dlfeh9802030@gmail.com
+    password: fgrmtxgeawkylfjo
+    properties:
+      mail:
+        stmp:
+          auth: true
+        smtp:
+          starttls:
+            enable: true
+
+  data:
+#    redis:
+#      host: redis-14652.c84.us-east-1-2.ec2.redns.redis-cloud.com
+#      username: default
+#      password: 1SFnckCRbNmNGIuIhdcoX6OtOUMOyfCo
+#      port: 14652
+#      ssl:
+#        enabled: true
+#  application:
+#    name: mail-service
+
+#eureka:
+#  instance:
+#    instance-id: mail-service-A
+#  client:
+#    serviceUrl:
+#      defaultZone: http://localhost:8761/eureka/

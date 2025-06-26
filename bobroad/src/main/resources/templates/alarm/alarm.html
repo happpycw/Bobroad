@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>전체 알림</title>
+  <link rel="stylesheet" th:href="@{/css/meeting/modal/modal.css}"/>
+</head>
+<body>
+<div class="modal-header">
+  <h1>알림</h1>
+</div>
+<div class="modal">
+  <ul class="notification-list">
+    <div th:if="${#lists.isEmpty(notificationList)}"
+         class="empty-alarm" style="height: 60vh;">
+      알림이 없습니다.
+    </div>
+    <li th:each="notification : ${notificationList}" class="notification-item"
+        th:attr="noti-id=${notification.id}">
+      <div th:if="${notification.type.name() == 'MEETING'}" style="display: flex; flex:1;">
+        <div class="message">
+          <strong th:text="${notification.meeting.title}"></strong>
+          에 초대되었습니다.
+        </div>
+        <div class="buttons"
+             th:attr="meeting-id=${notification.meeting.id}">
+          <button class="button reject">거절</button>
+          <button class="button accept">수락</button>
+        </div>
+      </div>
+      <div th:if="${notification.type.name() == 'VOTE'}" style="display: flex; flex:1;">
+        <div class="message">
+          <div>
+            <div style="margin-bottom: 1vh;">
+              <strong th:text="${notification.vote.meeting.title}"></strong> 모임에 투표가 열렸습니다.
+            </div>
+            <div>투표 명: <span th:text="${notification.vote.title}"></span></div>
+          </div>
+        </div>
+        <button class="button vote" th:attr="vote-id=${notification.vote.id}">투표하기</button>
+      </div>
+    </li>
+  </ul>
+</div>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    setupNotificationHandlers();
+    initSSE(); // 실시간 알림 연결
+
+    function setupNotificationHandlers() {
+      document.querySelectorAll(".notification-item").forEach(buttonEventHandlers);
+    }
+
+    function initSSE() {
+      const eventSource = new EventSource('/notification/sse');
+
+      eventSource.addEventListener("meeting", function (event) {
+        const data = JSON.parse(event.data);
+        addMeetingNotificationToList(data.notiId, data.meetingId, data.title);
+      });
+
+      eventSource.addEventListener("vote", function (event) {
+        const data = JSON.parse(event.data);
+        addVoteNotificationToList(data.voteId, data.meetingTitle, data.voteTitle);
+      });
+
+      eventSource.addEventListener("dummy", function (event) {
+        console.log("SSE 연결 성공 - dummy 이벤트 수신:", event);
+      });
+
+      eventSource.onerror = function (e) {
+        console.error("SSE 연결 오류:", e);
+        eventSource.close();
+      };
+    }
+
+    function addMeetingNotificationToList(notiId, meetingId, title) {
+      const list = document.querySelector(".notification-list");
+      const emptyAlarm = document.querySelector(".empty-alarm");
+      if (emptyAlarm) emptyAlarm.remove();
+
+      const li = document.createElement("li");
+      li.className = "notification-item";
+      li.setAttribute("noti-id", notiId);
+
+      li.innerHTML = `
+        <div style="display: flex; flex:1;">
+          <div class="message">
+            <strong>${title}</strong> 에 초대되었습니다.
+          </div>
+          <div class="buttons" meeting-id="${meetingId}">
+            <button class="button reject">거절</button>
+            <button class="button accept">수락</button>
+          </div>
+        </div>
+      `;
+
+      list.appendChild(li);
+      buttonEventHandlers(li);
+      alert(`${title}에 초대되었습니다!`);
+    }
+
+    function addVoteNotificationToList(voteId, meetingTitle, voteTitle) {
+      const list = document.querySelector(".notification-list");
+      const emptyAlarm = document.querySelector(".empty-alarm");
+      if (emptyAlarm) emptyAlarm.remove();
+
+      const li = document.createElement("li");
+      li.className = "notification-item";
+      li.innerHTML = `
+        <div class="message">
+          <div>
+            <div style="margin-bottom: 1vh;">
+              <strong>${meetingTitle}</strong> 모임에 투표가 열렸습니다.
+            </div>
+            <div>투표 명: <span>${voteTitle}</span></div>
+          </div>
+        </div>
+        <button class="button vote" vote-id="${voteId}">투표하기</button>
+      `;
+
+      list.appendChild(li);
+      buttonEventHandlers(li);
+      alert(`${meetingTitle}에서 투표가 생성되었습니다!`);
+    }
+
+    function buttonEventHandlers(li) {
+      const notiId = li.getAttribute("noti-id");
+      const buttons = li.querySelector(".buttons");
+      const meetingId = buttons?.getAttribute("meeting-id");
+
+      const acceptBtn = li.querySelector(".accept");
+      if (acceptBtn) {
+        acceptBtn.addEventListener("click", () => {
+          const confirmed = confirm("모임에 참여하시겠습니까?");
+          if (!confirmed) return;
+
+          sendInviteDecision(notiId, meetingId, "ACCEPT", true);
+        });
+      }
+
+      const rejectBtn = li.querySelector(".reject");
+      if (rejectBtn) {
+        rejectBtn.addEventListener("click", () => {
+          const confirmed = confirm("정말로 거절하시겠습니까?\n(거절하셔도 다시 초대받을 수 있습니다.)");
+          if (!confirmed) return;
+
+          sendInviteDecision(notiId, meetingId, "REJECT");
+        });
+      }
+
+      const voteBtn = li.querySelector(".vote");
+      if (voteBtn) {
+        voteBtn.addEventListener("click", () => {
+          const voteId = voteBtn.getAttribute("vote-id");
+          if (confirm('투표 페이지로 이동하시겠습니까?')) {
+            if (window.opener && !window.opener.closed) {
+              window.opener.location.href = `/meetings/vote/${voteId}`;
+            }
+            window.close();
+          }
+        });
+      }
+    }
+
+    function sendInviteDecision(notiId, meetingId, state, redirect = false) {
+      fetch(`/api/v1/notification/remove/${notiId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          notiId: notiId,
+          meetingId: meetingId,
+          state: state,
+        }),
+      })
+      .then(response => {
+        if (response.ok) {
+          if (state === "ACCEPT" && redirect) {
+            if (window.opener && !window.opener.closed) {
+              alert("모임 참여를 축하드립니다!\n모임 화면으로 이동합니다.");
+              window.opener.location.href = `/meetings/detail/${meetingId}`;
+            }
+            window.close();
+          } else {
+            location.reload();
+          }
+        } else {
+          alert("서버 처리에 실패했습니다.");
+        }
+      })
+      .catch(() => {
+        alert("요청 중 오류가 발생했습니다.");
+      });
+    }
+  });
+</script>
+</body>
+</html>

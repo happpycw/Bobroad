@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>모임 멤버</title>
+  <link rel="stylesheet" th:href="@{/css/meeting/modal/modal.css}" />
+</head>
+<body>
+<div>
+  <h1>
+    <span th:text="${meeting.title}"></span>
+    멤버 목록
+  </h1>
+</div>
+<th:block th:if="${role.name != 'MEMBER'}">
+  <div class="invite-button-wrapper">
+    <a class="invite-button" style="text-decoration: none;"
+       th:href="'/meetings/modal/meeting-invite/' + ${meeting.id} + '.html'"
+       target="_blank"
+       onclick="return openPopupWithHref(this);">
+      초대하기
+    </a>
+  </div>
+</th:block>
+
+<div class="modal" style="width: 60vw;">
+  <ul class="notification-list">
+    <li th:each="user : ${userList}" class="notification-item">
+      <div class="user">
+        <span th:text="${user.nickname}" class="nickname">닉네임</span>
+        <span th:text="${user.userAccount}" class="account">아이디</span>
+      </div>
+      <a th:href="'/bookmarks/modal/member-bookmarks/' + ${user.id} + '.html'"
+         target="_blank"
+         style="display: flex; align-items: center;"
+         onclick="return openPopupWithHref(this);">
+        <img src="/img/bookmark.png" alt="북마크" class="bookmark"/>
+      </a>
+    </li>
+  </ul>
+</div>
+
+<script>
+  function openPopupWithHref(anchor) {
+    const url = anchor.href;
+    const popupWidth = 1000;
+    const popupHeight = 700;
+
+    const screenLeft = window.screenLeft !== undefined ? window.screenLeft : screen.left;
+    const screenTop = window.screenTop !== undefined ? window.screenTop : screen.top;
+
+    const screenWidth = window.innerWidth || document.documentElement.clientWidth || screen.width;
+    const screenHeight = window.innerHeight || document.documentElement.clientHeight || screen.height;
+
+    const left = screenLeft + (screenWidth - popupWidth) / 2;
+    const top = screenTop + (screenHeight - popupHeight) / 2;
+
+    window.open(
+        url,
+        'popupWindow',
+        `width=${popupWidth},height=${popupHeight},left=${left},top=${top},resizable=yes,scrollbars=yes`
+    );
+    return false; // 기본 링크 이동 방지
+  }
+</script>
+
+</body>
+</html>

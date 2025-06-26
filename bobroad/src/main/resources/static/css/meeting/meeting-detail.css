@@ -1,0 +1,133 @@
+main{
+  padding: 2.5vw 15vw;
+  width: 100%;
+  height: 100%;
+  align-content: center;
+}
+h2{
+  font-weight: bold;
+}
+a {
+  color: black;
+}
+
+.div-flex{
+  display: flex;
+  align-content: center;
+}
+
+.header{
+  display: flex;
+  justify-content: space-between;
+  align-content: center;
+  align-items: center;
+  margin-bottom: 2vh;
+}
+
+.meeting-button {
+  padding: 10px 20px;
+  background-color: #e0e0e0;
+  border: 1px solid #333;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 17px;
+  cursor: pointer;
+}
+
+.empty{
+  width: 100%;
+  height: 60vh;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+  font-size: large;
+  font-weight: bold;
+  text-align: center;
+  align-content: center;
+}
+
+.vote-header{
+  display: flex;
+  gap: 30px;
+  align-items: center;
+}
+.vote-filter-label {
+  cursor: pointer;
+  transition: color 0.2s;
+  color: #666;
+  font-weight: bold;
+  font-size: 15px;
+}
+.vote-filter-label:hover {
+  color: #27a69a;
+}
+.vote-filter-label input[type="radio"]:checked + * {
+  color: #27a69a;
+}
+.vote-filter-label.selected {
+  color: #27a69a;
+}
+
+.scroll-container {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+.vote{
+  display: flex;
+  justify-content: space-between;
+  padding: 25px 30px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 2vh;
+  align-items: center;
+}
+.vote-button{
+  display: inline-block;
+  padding: 10px 15px;
+  background-color: #27a69a;
+  color: white;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.vote-detail{
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.button-wrapper{
+}
+.vote-move{
+  padding: 8px 16px;
+  background-color: #e0e0e0;
+  border: 1px solid #333;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 15px;
+  text-align: center;
+  cursor: pointer;
+}
+.vote-move.disabled {
+  padding: 12px 18px;
+  background-color: #cccccc;
+  border: none;
+  color: #666666;
+  pointer-events: none;
+  cursor: default;
+}
+.vote-move.ended {
+  padding: 12px 18px;
+  background-color: #ffd8e4;
+  border: 1px solid #79747e;
+  color: #633a48;
+  pointer-events: none;
+  cursor: default;
+}
+
+.button-wrapper{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: end;
+}

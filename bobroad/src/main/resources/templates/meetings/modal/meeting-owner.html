@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>권한 관리</title>
+  <link rel="stylesheet" th:href="@{/css/meeting/modal/modal.css}" />
+</head>
+<body>
+<div class="modal-header">
+  <h1>권한 관리</h1>
+</div>
+<div class="invite-button-wrapper" style="width: 65%;">
+  <button type="button" onclick="grant()" class="invite-button" style="border: none;">
+    수정하기
+  </button>
+</div>
+<div class="modal" style="width: 50vw;">
+  <input type="hidden" id="id" th:value="${id}" />
+  <ul class="notification-list">
+    <li th:each="member : ${memberList}" class="notification-item">
+      <div class="user">
+        <span th:text="${member.getUser().getNickname()}" class="nickname">닉네임</span>
+        <span th:text="${member.getUser().getUserAccount()}" class="account">아이디</span>
+      </div>
+      <select class="role-select" th:data-member-id="${member.getId()}">
+        <option th:each="role : ${roles}"
+                th:value="${role}"
+                th:text="${role}"
+                th:selected="${role} == ${member.role}">
+        </option>
+      </select>
+    </li>
+  </ul>
+</div>
+<script>
+  function grant(){
+    const id = document.getElementById("id").value;
+    const selects = document.querySelectorAll('.role-select');
+    const updates = [];
+
+    selects.forEach(select => {
+      const memberId = select.dataset.memberId;
+      const role = select.value;
+      updates.push({ memberId, role });
+    });
+
+    if(confirm("권한 수정하시겠습니까?")){
+      fetch(`/api/v1/meeting/grant/${id}`, {
+        method: "PATCH",
+        headers:{
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(updates)
+      })
+      .then(res => {
+        if(res.ok){
+          alert("수정이 완료되었습니다!");
+          location.reload();
+        } else {
+          alert("수정을 실패하였습니다");
+        }
+      })
+    }
+  }
+</script>
+</body>
+</html>

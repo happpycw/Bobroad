@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>멤버 북마크 리스트</title>
+  <link rel="stylesheet" th:href="@{/css/member-bookmark.css}"/>
+</head>
+<body>
+  <div class="header-wrapper">
+    <img src="/img/bookmark.png" alt="북마크" class="w-19 h-19"/>
+    <h2 class="text-2xl font-semibold">멤버 북마크 리스트</h2>
+  </div>
+
+  <div th:if="${#lists.isEmpty(bookmarks)}" class="scroll-container empty">
+    등록된 북마크가 없습니다.
+  </div>
+  <th:block th:if="${!#lists.isEmpty(bookmarks)}">
+    <div class="scroll-container">
+      <div th:each="bookmark, idx : ${bookmarks}" class="bookmark-wrapper">
+        <div th:attr="data-link=@{/restaurant/detail/{id}(id=${bookmark.restaurantId})}">
+          <div style="font-size: 25px; font-weight: bold;" th:text="${bookmark.restaurantName}">식당명</div>
+
+          <div class="detail-wrapper">
+            <div class="detail">지점명: <span th:text="${bookmark.branch}">지점명</span></div>
+            <div class="detail">카테고리: <span th:text="${bookmark.category}">카테고리</span></div>
+            <div class="detail">영업시간: <span th:text="${bookmark.businessTime}">영업시간</span></div>
+            <div class="detail">주소: <span th:text="${bookmark.restaurantAddress}">주소</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </th:block>
+
+
+  <script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.bookmark-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const link = card.getAttribute('data-link');
+          window.location.href = link;
+        });
+      });
+
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.preventDefault();
+          e.stopPropagation();
+          const restaurantId = btn.getAttribute('data-restaurant-id');
+          fetch(`/api/bookmarks/toggle/${restaurantId}`, {
+            method: 'POST'
+          })
+          .then(res => {
+            if (!res.ok) throw new Error('Status ' + res.status);
+            return res.json();
+          })
+          .then(data => {
+            if (!data.added) {
+              btn.closest('.bookmark-card').remove();
+              alert('북마크가 해제되었습니다.');
+            } else {
+              alert('북마크가 추가되었습니다.');
+            }
+          })
+          .catch(err => {
+            console.error('[Bookmark] 오류:', err);
+            alert('북마크 처리 중 오류가 발생했습니다.');
+          });
+        });
+      });
+    });
+  </script>
+
+<!--<script>-->
+<!--  // userId를 하드코딩하거나 동적으로 설정할 수 있음-->
+<!--  const userId = 1;-->
+
+<!--  // API 요청 보내기-->
+<!--  fetch(`/member/${userId}`)-->
+<!--  .then(response => response.json())-->
+<!--  .then(data => {-->
+<!--    const bookmarkList = document.getElementById('bookmark-list');-->
+
+<!--    if (data.success) {-->
+<!--      const bookmarks = data.response;-->
+<!--      bookmarks.forEach(bookmark => {-->
+<!--        const li = document.createElement('li');-->
+<!--        li.className = 'list-group-item';-->
+<!--        li.textContent = bookmark.title || JSON.stringify(bookmark); // title 필드가 있다면 사용-->
+<!--        bookmarkList.appendChild(li);-->
+<!--      });-->
+<!--    } else {-->
+<!--      alert('북마크를 불러오는 데 실패했습니다.');-->
+<!--    }-->
+<!--  })-->
+<!--  .catch(error => {-->
+<!--    console.error('에러 발생:', error);-->
+<!--  });-->
+<!--</script>-->
+</body>
+</html>

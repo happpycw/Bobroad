@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+  <meta charset="UTF-8">
+  <title>식당 리스트</title>
+  <link rel="stylesheet" href="/css/restaurant/restaurantList.css">
+</head>
+<body>
+<main layout:fragment="content">
+  <div>
+    <p class="restaurant-title">🍽️ 식당 검색 결과</p>
+
+    <form method="get" action="/search/result" class="search" onsubmit="return validateForm()">
+      <input type="text" name="restaurantKeyword" id="restaurantKeyword" placeholder="식당명을 입력하세요">
+      <button type="submit">검색</button>
+    </form>
+  </div>
+
+  <th:block th:if="${#lists.isEmpty(results)} and ${message == null}">
+    <div class="empty">
+      <div>
+        검색 결과가 없습니다.
+      </div>
+      <div th:if="${message != null}">
+        <p th:text="${message}" class="text-red-500 font-semibold"></p>
+      </div>
+    </div>
+  </th:block>
+
+  <div class="scroll-container">
+    <ul th:if="${not #lists.isEmpty(results)}" class="restaurant-list">
+      <li th:each="res : ${results}" class="restaurant-card">
+        <a th:href="@{/restaurant/detail/{id}(id=${res.id})}">
+          <div>
+            <span class="restaurant-name" th:text="${res.name}">식당명</span>
+            <span class="restaurant-branch" th:text="${res.branch}">지점명</span>
+            <span class="restaurant-category" th:text="${res.category}">한식</span>
+          </div>
+          <p class="restaurant-time" th:text="${res.businessTime}">영업시간</p>
+          <p class="restaurant-address" th:text="${res.roadAddress}">주소</p>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+</main>
+</body>
+</html>

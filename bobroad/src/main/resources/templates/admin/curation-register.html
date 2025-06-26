@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin-layout}">
+<head>
+  <meta charset="UTF-8">
+  <title layout:fragment="title">큐레이션 등록</title>
+</head>
+
+<section layout:fragment="content"
+         class="relative flex-1 bg-gray-50">
+
+  <!-- 헤더 -->
+  <div class="p-6">
+    <h2 class="text-2xl font-semibold">큐레이션 등록</h2>
+  </div>
+
+  <!-- 스크롤 가능한 영역 & 중앙 컨테이너 -->
+  <div class="absolute overflow-y-auto"
+       style="
+         top: 96px;
+         bottom: 24px;
+         left: 24px;
+         right: 24px;
+       ">
+    <div class="max-w-5xl mx-auto bg-white p-8 rounded-lg shadow-md">
+
+      <form th:action="@{/admin/curation/register}"
+            th:object="${form}"
+            method="post"
+            class="space-y-6">
+
+        <!-- 제목 -->
+        <div>
+          <label class="block mb-1 font-medium">제목</label>
+          <input type="text"
+                 th:field="*{title}"
+                 placeholder="제목을 입력하세요"
+                 class="w-full border rounded px-3 py-2" />
+        </div>
+
+        <!-- 회사 위치(강남구 동) -->
+        <div>
+          <label class="block mb-1 font-medium">회사 위치(강남구 동)</label>
+          <select th:field="*{companyLocation}"
+                  class="w-full border rounded px-3 py-2">
+            <option value="" disabled selected>동 선택</option>
+            <option th:each="d : ${companylocation}"
+                    th:value="${d.name()}"
+                    th:text="${d.label}">
+            </option>
+          </select>
+        </div>
+
+        <!-- 식사 용도 -->
+        <div>
+          <label class="block mb-1 font-medium">식사 용도</label>
+          <select th:field="*{purpose}"
+                  class="w-full border rounded px-3 py-2">
+            <option value="" disabled selected>용도 선택</option>
+            <option th:each="p : ${purpose}"
+                    th:value="${p.name()}"
+                    th:text="${p.label}">
+            </option>
+          </select>
+        </div>
+
+        <!-- 동행 대상 -->
+        <div>
+          <label class="block mb-1 font-medium">동행 대상</label>
+          <select th:field="*{companion}"
+                  class="w-full border rounded px-3 py-2">
+            <option value="" disabled selected>동행 대상 선택</option>
+            <option th:each="c : ${compainons}"
+                    th:value="${c.name()}"
+                    th:text="${c.label}">
+            </option>
+          </select>
+        </div>
+
+        <!-- 즐겨찾기 카테고리 -->
+        <div>
+          <label class="block mb-1 font-medium">즐겨찾기 카테고리</label>
+          <select th:field="*{favoriteCategory}"
+                  class="w-full border rounded px-3 py-2">
+            <option value="" disabled selected>카테고리 선택</option>
+            <option th:each="f : ${favoritecategory}"
+                    th:value="${f.name()}"
+                    th:text="${f.label}">
+            </option>
+          </select>
+        </div>
+
+        <!-- 선호 분위기 -->
+        <div>
+          <label class="block mb-1 font-medium">선호 분위기</label>
+          <select th:field="*{preferredMood}"
+                  class="w-full border rounded px-3 py-2">
+            <option value="" disabled selected>분위기 선택</option>
+            <option th:each="m : ${preferredmood}"
+                    th:value="${m.name()}"
+                    th:text="${m.label}">
+            </option>
+          </select>
+        </div>
+
+        <!-- 저장 버튼 -->
+        <div>
+          <button type="submit"
+                  class="btn-detail px-3 py-1 bg-gray-700 text-white rounded hover:bg-blue-700">
+            저장
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+</section>
+</html>

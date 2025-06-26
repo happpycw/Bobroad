@@ -1,0 +1,74 @@
+/* background map */
+html, body {
+    height: 100%;
+    margin: 0;
+    font-family: sans-serif;
+    color: #000000;
+    text-align: center;
+}
+
+body {
+    background-image: url('/img/map.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-color: rgba(255, 255, 255, 0.5);
+    z-index: -1;
+}
+
+.content {
+    position: relative;
+    top: 40%;
+    transform: translateY(-50%);
+}
+
+.search-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 85vh;
+}
+
+/* 제목 */
+.main-title {
+    font-size: 30px;
+    font-weight: bold;
+    color: #111;
+    margin-bottom: 24px;
+}
+
+/* 검색 바 */
+.search {
+    display: flex;
+    gap: 16px;
+}
+
+.search input[type="text"] {
+    min-width: 40vw;
+    font-size: 16px;
+    padding: 7px 15px;
+    border: 1px solid #27a69a;
+    border-radius: 8px;
+    background-color: white;
+    margin-bottom: 0px;
+}
+
+.search button {
+    background-color: #27a69a;
+    width: 120px;
+    padding: 15px 15px;
+    color: white;
+    border: none;
+    font-weight: bold;
+    font-size: 18px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+

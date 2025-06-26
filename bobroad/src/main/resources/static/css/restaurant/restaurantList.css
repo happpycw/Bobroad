@@ -1,0 +1,143 @@
+main{
+    width: 100%;
+    padding: 5vw 20vw;
+}
+
+.search-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 20vh;
+    width: auto;
+}
+
+/* 대문명 : 강남구 맛집 큐레이팅*/
+.content-name{
+    margin-top: 30px;
+    font-stretch: condensed;
+}
+
+.search {
+    display: flex;
+    gap: 16px;
+}
+
+.search input[type="text"] {
+    min-width: 40vw;
+    font-size: 16px;
+    padding: 7px 15px;
+    border: 1px solid #27a69a;
+    border-radius: 8px;
+    background-color: white;
+    margin-bottom: 0px;
+}
+
+.search button {
+    background-color: #27a69a;
+    width: 100px;
+    padding: 15px 15px;
+    color: white;
+    border: none;
+    font-weight: bold;
+    font-size: 18px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.empty{
+    width: 100%;
+    height: 60vh;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: large;
+    font-weight: bold;
+    text-align: center;
+    align-content: center;
+    margin-top: 40px;
+}
+
+.scroll-container {
+    width: 100%;
+    height: 60vh;
+    overflow-y: auto;
+    margin-top: 40px;
+    justify-items: center;
+}
+
+.restaurant-list {
+    width: 70%;
+    list-style: none;
+}
+
+.restaurant-title {
+    text-align: center;
+    font-size: 30px;
+    font-weight: bold;
+    color: #111;
+    margin-bottom: 30px;
+}
+
+.restaurant-card {
+    border: 1px solid #ddd;
+    padding: 16px;
+    margin-bottom: 16px;
+    border-radius: 12px;
+    background-color: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
+}
+
+.restaurant-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.restaurant-name {
+    font-size: 18px;
+    font-weight: bold;
+    color: black;
+}
+
+.restaurant-reason {
+    font-size: 15px;
+    /*font-weight: bold;*/
+    color: black;
+    margin-right: 8px;
+}
+
+.restaurant-branch {
+    font-size: 14px;
+    color: #555;
+    margin-left: 8px;
+}
+
+.restaurant-category {
+    float: right;
+    font-size: 12px;
+    background-color: #e0f0ff;
+    color: #0077cc;
+    padding: 2px 8px;
+    border-radius: 999px;
+}
+
+.restaurant-time {
+    font-size: 13px;
+    color: #888;
+}
+
+.restaurant-address {
+    font-size: 14px;
+    color: #666;
+    margin-top: 4px;
+}
+
+.curation-card {
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin-bottom: 30px;
+    border-radius: 12px;
+    background-color: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
+}

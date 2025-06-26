@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin-layout-curation}">
+<head>
+  <meta charset="UTF-8"/>
+  <title layout:fragment="title">큐레이션 결과 리스트</title>
+</head>
+
+<section layout:fragment="content" class="p-10 bg-gray-50 flex-1">
+  <div class="flex items-center justify-between mb-6">
+    <h2 class="text-2xl font-semibold">큐레이션 추천 리스트</h2>
+    <button type="button"
+            th:onclick="|location.href='@{/admin/curation/register}'|"
+            class="btn-detail px-3 py-1 bg-gray-700 text-white rounded hover:bg-blue-700">
+      새로운 큐레이션 등록
+    </button>
+  </div>
+  <div class="mb-6 flex items-center">
+    <input
+            type="text"
+            id="searchKeyword"
+            placeholder="큐레이션 제목을 입력하세요."
+            class="border rounded-l-lg px-3 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-blue-400"
+    />
+    <button
+            id="searchButton"
+            type="button"
+            class="bg-gray-700 hover:bg-blue-700 text-white px-4 py-2 rounded-r-lg"
+    >
+      검색
+    </button>
+  </div>
+
+  <th:block th:each="result, iterStat : ${curationResults}"
+            th:with="
+              prevTitle = ${iterStat.index > 0} ? ${curationResults[iterStat.index - 1].title} : '',
+              nextTitle = ${(iterStat.index + 1) < #lists.size(curationResults)} ? ${curationResults[iterStat.index + 1].title} : ''">
+
+    <th:block th:if="${iterStat.index == 0} or ${result.title} != ${prevTitle}">
+      <div class="mb-8">
+        <h3 class="text-xl font-semibold mb-2" th:text="${result.title}">테마명</h3>
+        <div class="grid grid-cols-3 gap-6 mt-2">
+    </th:block>
+
+    <div class="border rounded-lg bg-white p-4 shadow-sm hover:shadow-md transition">
+      <p class="text-xs text-gray-400 mb-2">
+        주제명: <span th:text="${result.title}">테마명</span>
+      </p>
+      <h4 class="font-medium text-lg mb-1" th:text="${result.name}">식당명</h4>
+      <p class="text-sm text-gray-600 mb-3" th:text="${result.address}">식당 위치</p>
+      <p th:text="${result.active} ? '현재: 활성' : '현재: 비활성'"
+         th:class="'status-text text-sm mb-2 ' + (${result.active}
+           ? 'font-bold text-blue-500'
+           : 'font-bold text-red-500')">
+        현재: 상태
+      </p>
+      <button
+              type="button"
+              class="main-toggle-btn"
+              th:classappend="${result.active}
+          ? ' px-3 py-1 rounded text-white bg-gray-500 hover:bg-gray-600'
+          : ' px-3 py-1 rounded text-white bg-indigo-500 hover:bg-indigo-600'"
+              th:data-id="${result.id}"
+              th:text="${result.active} ? '비활성화' : '활성화'">
+        토글
+      </button>
+    </div>
+
+    <th:block th:if="
+        (${iterStat.index + 1} == ${#lists.size(curationResults)})
+        or
+        ${result.title} != ${nextTitle}">
+      </div>
+      </div>
+    </th:block>
+
+  </th:block>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const searchBtn    = document.getElementById('searchButton');
+      const keywordInput = document.getElementById('searchKeyword');
+      const grids        = document.querySelectorAll('.grid.grid-cols-3');
+
+      function bindToggleButtons(root = document) {
+        root.querySelectorAll('.main-toggle-btn').forEach(btn => {
+          if (btn.dataset.bound) return;
+          btn.dataset.bound = 'true';
+          btn.addEventListener('click', function() {
+            const id   = this.getAttribute('data-id');
+            const self = this;
+            fetch(`/admin/curation/toggle/${id}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' }
+            })
+                    .then(resp => {
+                      if (!resp.ok) throw new Error(`status ${resp.status}`);
+                      return resp;
+                    })
+                    .then(() => {
+                      const isOff = self.textContent.trim() === '비활성화';
+                      if (isOff) {
+                        self.textContent = '활성화';
+                        self.classList.replace('bg-gray-500','bg-indigo-500');
+                        self.classList.replace('hover:bg-gray-600','hover:bg-indigo-600');
+                        alert('비활성화되었습니다');
+                      } else {
+                        self.textContent = '비활성화';
+                        self.classList.replace('bg-indigo-500','bg-gray-500');
+                        self.classList.replace('hover:bg-indigo-600','hover:bg-gray-600');
+                        alert('활성화되었습니다');
+                      }
+                      const status = self.closest('div').querySelector('.status-text');
+                      if (status) {
+                        if (isOff) {
+                          status.textContent = '현재: 비활성';
+                          status.classList.remove('font-bold','text-blue-500');
+                          status.classList.add('font-bold','text-red-500');
+                        } else {
+                          status.textContent = '현재: 활성';
+                          status.classList.remove('font-bold','text-red-500');
+                          status.classList.add('font-bold','text-blue-500');
+                        }
+                      }
+                    })
+                    .catch(() => {
+                      alert('상태 변경에 실패했습니다.');
+                    });
+          });
+        });
+      }
+
+      bindToggleButtons();
+
+      searchBtn.addEventListener('click', function() {
+        const kw = keywordInput.value.trim().toLowerCase();
+        grids.forEach(grid => {
+          let anyVisible = false;
+          grid.querySelectorAll('div.border').forEach(card => {
+            const titleText = card.querySelector('p.text-xs span')?.textContent.toLowerCase() || '';
+            const nameText  = card.querySelector('h4')?.textContent.toLowerCase() || '';
+            const ok = kw === '' || titleText.includes(kw) || nameText.includes(kw);
+            card.style.display = ok ? '' : 'none';
+            if (ok) anyVisible = true;
+          });
+          const themeBlock = grid.closest('.mb-8');
+          if (themeBlock) themeBlock.style.display = anyVisible ? '' : 'none';
+        });
+      });
+    });
+  </script>
+
+</section>
+</html>

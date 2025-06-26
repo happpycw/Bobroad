@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout}">
+<head>
+  <meta charset="UTF-8">
+  <title>Synapse4 서버 확인</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f6fa;
+      text-align: center;
+      color: #2f3640;
+    }
+    h1 {
+      font-size: 3rem;
+    }
+    p {
+      font-size: 1.2rem;
+      line-height: 1.8;
+    }
+    .emoji {
+      font-size: 2rem;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+<div class="flex justify-end items-center gap-4">
+<main layout:fragment="content">
+  <div sec:authorize="isAuthenticated()">
+    <span class="text-sm font-semibold">
+      <span th:text="${#authentication.principal.user.nickname}">닉네임</span> 님 환영합니다!
+    </span>
+  </div>
+
+  <h1>👋 안녕하세요, Synapse4 입니다!</h1>
+  <p>서버는 정상 작동 중입니다 🚀<br>🔥🔥🔥🔥</p>
+  <div class="emoji">🐣🌱🍙🧠🌈💻</div>
+  <p><em>“넘어져도 다시 일어나!”</em></p>
+  <p><em>“Spring이 익숙해지는 그날까지!!!”</em></p>
+  <p><em>“1인분은 할 수 있도록 빠샤💪”</em></p>
+  <p><em>“100번의 생각보다 한 줄 코드 쓰기 아자💪, 라고 했는데 여전히 생각만 많이 하고 있죠?”</em></p>
+</main>
+</div>
+</body>
+</html>

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+
+<head>
+  <meta charset="UTF-8">
+  <title>식당 상세</title>
+  <link rel="stylesheet" href="/css/restaurant/detail.css">
+
+
+</head>
+<body>
+<main layout:fragment="content">
+  <div style="display: flex; height: 100%;">
+    <div id="dtl" class="restaurant-wrapper">
+      <div class="restaurant-info"> <!-- 왼쪽 상세 정보 -->
+        <!-- 식당 이름 -->
+        <div class="main-main">
+          <span class="main-title" th:text="${restaurant.name}">식당명</span>
+          <span class="main-branch" th:text="${restaurant.branch}">지점명</span>
+          <span class="category-list" th:text="${restaurant.category}">카테고리</span>
+        </div>
+
+        <!-- 버튼 -->
+        <div class="action-buttons">
+          <div class="action-item" style="border-right: 1px solid #eee;">
+            <img src="/img/location.png" alt="위치 보기" class="action-icon">
+            <span style="margin-top: 5px;">위치 보기</span>
+          </div>
+          <div class="action-item" style="border-right: 1px solid #eee;">
+            <button type="button"
+                    class="bookmark-btn focus:outline-none"
+                    th:attr="data-id=${restaurant.id}">
+              <svg xmlns="http://www.w3.org/2000/svg"
+                   class="h-6 w-6 text-gray-400 hover:text-gray-600 fill-current"
+                   viewBox="0 0 20 20" fill="currentColor">
+                <path d="M5 3a2 2 0 00-2 2v14l7-5 7 5V5a2 2 0 00-2-2H5z"/>
+              </svg>
+            </button>
+            <span style="margin-top: 5px;">북마크</span>
+          </div>
+          <div class="action-item share-btn" style="cursor: pointer;">
+            <img src="/img/share.png" alt="공유하기" class="action-icon">
+            <span style="margin-top: 5px;">공유하기</span>
+          </div>
+        </div>
+
+        <!-- 정보 섹션 -->
+        <div class="info-section">
+          <p th:if="${!#strings.isEmpty(restaurant.address)}">
+            <strong>주소</strong> <span th:text="${restaurant.address}">주소</span>
+          </p>
+          <p th:if="${restaurant.detail != null and !#strings.isEmpty(restaurant.detail.tel)}">
+            <strong>연락처</strong> <span th:text="${restaurant.detail.tel}">연락처</span>
+          </p>
+          <p th:if="${restaurant.detail != null and !#strings.isEmpty(restaurant.detail.homePageURL)}">
+            <strong>홈페이지</strong>
+            <a th:href="@{${restaurant.detail.homePageURL}}"
+               th:text="${restaurant.detail.homePageURL}"
+               class="homepage-url"
+               target="_blank"
+               rel="noopener noreferrer">
+            </a>
+          </p>
+
+          <p th:if="${restaurant.detail != null and !#strings.isEmpty(restaurant.detail.dayOff)}">
+            <strong>휴무일</strong> <span th:text="${restaurant.detail.dayOff}">휴무일</span>
+          </p>
+          <p th:if="${restaurant.detail != null and !#strings.isEmpty(restaurant.detail.rowBusinessTime)}">
+            <strong>영업시간</strong> <span th:text="${restaurant.detail.rowBusinessTime}">영업시간</span>
+          </p>
+        </div>
+
+        <!-- 메뉴 -->
+        <div class="detail-wrapper">
+          <div class="menu-title">메뉴</div>
+
+          <div th:if="${topMenus != null and !topMenus.isEmpty()}" class="menu-list">
+            <div th:each="menu : ${topMenus}" class="menu-card">
+              <div style="width: 100%;">
+                <p class="menu-name" th:text="${menu.name}">메뉴명</p>
+                <p class="menu-price"
+                   th:text="${#numbers.formatInteger(menu.price, 3, 'COMMA') + '원'}">가격</p>
+              </div>
+            </div>
+          </div>
+
+          <div th:unless="${topMenus != null and !topMenus.isEmpty()}" class="none-menu-card">
+            <div style="width: 100%;">
+              <p>등록된 메뉴가 없습니다.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-wrapper">
+          <div class="menu-title">시설 안내</div>
+          <p>
+            <strong>배달</strong>
+            <span th:if="${restaurant.detail.delivery}"> ☺️가능해요</span>
+            <span th:unless="${restaurant.detail.delivery}"> 😢어려워요</span>
+          </p>
+          <p>
+            <strong>주차</strong>
+            <span th:if="${restaurant.detail.parking}"> ☺️가능해요</span>
+            <span th:unless="${restaurant.detail.parking}"> 😢어려워요</span>
+          </p>
+          <p>
+            <strong>와이파이</strong>
+            <span th:if="${restaurant.detail.wifi}"> ☺️제공해요</span>
+            <span th:unless="${restaurant.detail.wifi}"> 😢제공하지 않아요</span>
+          </p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 지도 -->
+    <div id="map" style="width: 100%;"></div>
+  </div>
+
+  <script th:src="@{('https://dapi.kakao.com/v2/maps/sdk.js?appkey=' + ${kakaoMapApiKey} + '&libraries=services')}"></script>
+  <script th:inline="javascript">
+    var lat = [[${restaurant.latitude}]];
+    var lng = [[${restaurant.longitude}]];
+
+    var mapContainer = document.getElementById('map'), // 지도를 표시할 div
+        mapOption = {
+          center: new kakao.maps.LatLng(lat, lng), // 지도의 중심좌표
+          level: 1 // 지도의 확대 레벨
+        };
+
+    // 지도를 표시할 div와  지도 옵션으로  지도를 생성합니다
+    var map = new kakao.maps.Map(mapContainer, mapOption);
+
+    // 마커가 표시될 위치입니다
+    var markerPosition = new kakao.maps.LatLng(lat, lng);
+
+    // 마커를 생성합니다
+    var marker = new kakao.maps.Marker({
+      position: markerPosition
+    });
+
+    // 마커가 지도 위에 표시되도록 설정합니다
+    marker.setMap(map);
+  </script>
+
+  <script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', () => {
+      const userId = /*[[${userId}]]*/ 0;
+
+      function setGreen(btn) {
+        const svg = btn.querySelector('svg');
+        svg.classList.replace('text-gray-400', 'text-green-400');
+        svg.classList.replace('hover:text-gray-600', 'hover:text-green-600');
+      }
+
+      function setGray(btn) {
+        const svg = btn.querySelector('svg');
+        svg.classList.replace('text-green-400', 'text-gray-400');
+        svg.classList.replace('hover:text-green-600', 'hover:text-gray-600');
+      }
+
+      if (userId > 0) {
+        fetch(`/api/bookmarks/member/${userId}`)
+        .then(res => {
+          if (!res.ok) {
+            throw new Error(res.status);
+          }
+          return res.json();
+        })
+        .then(json => {
+          const list = Array.isArray(json.data) ? json.data : [];
+          const set = new Set(list.map(d => d.restaurantId));
+          document.querySelectorAll('.bookmark-btn').forEach(btn => {
+            const rid = Number(btn.dataset.id);
+            if (set.has(rid)) {
+              setGreen(btn);
+            }
+          });
+        })
+        .catch(err => console.error('초기 북마크 오류:', err));
+      }
+
+      document.querySelectorAll('.ranking-card').forEach(card => {
+        card.addEventListener('click', () => {
+          window.location.href = card.dataset.link;
+        });
+      });
+
+      document.querySelectorAll('.bookmark-btn').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.preventDefault();
+          e.stopPropagation();
+
+          if (userId <= 0) {
+            alert('로그인이 필요한 서비스입니다.');
+            return window.location.href = '/user/signin';
+          }
+
+          const rid = btn.dataset.id;
+          fetch(`/api/bookmarks/toggle/${rid}`, {method: 'POST'})
+          .then(res => {
+            if (!res.ok) {
+              throw new Error(res.status);
+            }
+            return res.json();
+          })
+          .then(data => {
+            if (data.added) {
+              setGreen(btn);
+              alert('북마크가 추가되었습니다.');
+            } else {
+              setGray(btn);
+              alert('북마크가 해제되었습니다.');
+            }
+          })
+          .catch(err => console.error('토글 오류:', err));
+        });
+      });
+    });
+  </script>
+
+  <script>
+    document.querySelector('.share-btn')?.addEventListener('click', () => {
+      const url = window.location.href;
+
+      navigator.clipboard.writeText(url)
+      .then(() => {
+        alert('현재 페이지 주소가 복사되었습니다!');
+      })
+      .catch(err => {
+        console.error('URL 복사 실패:', err);
+        alert('URL 복사 중 문제가 발생했습니다 😢');
+      });
+    });
+
+  </script>
+
+  <script th:inline="javascript">
+    document.querySelector('.recenter-btn')?.addEventListener('click', () => {
+      const centerPosition = new kakao.maps.LatLng([[${restaurant.latitude}]],
+          [[${restaurant.longitude}]]);
+      map.setCenter(centerPosition);
+      map.setLevel(1);
+    });
+  </script>
+
+</main>
+</body>
+</html>

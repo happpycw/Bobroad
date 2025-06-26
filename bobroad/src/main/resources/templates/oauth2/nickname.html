@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ko"
+      layout:decorate="~{layout}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>닉네임 설정</title>
+</head>
+<body>
+<main layout:fragment="content">
+  <div class="flex justify-center items-center min-h-screen bg-white">
+    <div class="bg-gray-100 p-10 rounded-lg shadow-md w-full max-w-xl text-center">
+      <h2 class="text-2xl font-bold mb-6">서비스 이용을 위해 닉네임을 설정해주세요</h2>
+
+      <form class="space-y-4" method="post" th:action="@{/oauth2/nickname}">
+        <input class="w-full border border-gray-300 rounded px-4 py-2" name="nickname"
+               placeholder="닉네임 입력" required type="text">
+
+        <button class="w-1/2 text-white py-3 rounded" style="background-color: #27a69a;"
+                type="submit">
+          등록하기
+        </button>
+      </form>
+
+      <div class="mt-4 text-red-600 font-medium" th:if="${param.error}">
+        이미 사용 중인 닉네임입니다. 다른 닉네임을 입력해주세요.
+      </div>
+    </div>
+  </div>
+</main>
+</body>
+</html>

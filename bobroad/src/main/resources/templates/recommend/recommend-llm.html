@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>ai 추천</title>
+    <link rel="stylesheet" href="/css/restaurant/search.css">
+</head>
+<body>
+<main layout:fragment="content">
+
+    <!-- 로그인한 사용자 정보 확인용 -->
+    <div sec:authorize="isAuthenticated()">
+    <span class="text-sm font-semibold">
+      <span th:text="${#authentication.principal.user.nickname}">닉네임</span> 님 환영합니다!
+    </span>
+    </div>
+
+    <div class="search-box">
+        <p class="main-title">🍽️ 구체적인 상황을 입력하고, AI 추천을 받아보세요!</p>
+
+        <!--    post mapping : 입력한 questionText 를 Post 매핑하도록 수정    -->
+        <form method="post" action="/recommend/init" class="search" onsubmit="return validateForm()">
+            <input type="text" name="questionText" id="questionText" placeholder="구체적 상황을 입력하세요">
+            <button type="submit">추천 받기</button>
+        </form>
+    </div>
+
+    <script>
+        function validateForm(){
+            const keyword = document.getElementById('questionText').value.trim();
+            if(!keyword){
+                alert("상황을 입력해 주세요.");
+                return false;
+            }
+            return true;
+        }
+
+    </script>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko"
+      layout:decorate="~{layout}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>로그인</title>
+</head>
+<body>
+<main layout:fragment="content">
+  <div class="flex justify-center items-center min-h-screen bg-white">
+    <div class="bg-gray-100 p-10 rounded-xl shadow-lg w-full max-w-md">
+      <div class="text-2xl font-bold text-center mb-6">로그인</div>
+
+      <form class="space-y-4" id="signin-form">
+
+        <div
+            class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded text-center"
+            id="error-msg">
+          아이디 또는 비밀번호가 일치하지 않습니다.
+        </div>
+
+        <div class="form-group">
+          <label class="font-semibold" for="userAccount">아이디</label>
+          <input class="w-full border border-gray-300 rounded px-3 py-2" id="userAccount"
+                 name="userAccount"
+                 placeholder="아이디를 입력해주세요"
+                 required type="text"/>
+        </div>
+
+        <div class="form-group">
+          <label class="font-semibold" for="password">비밀번호</label>
+          <input class="w-full border border-gray-300 rounded px-3 py-2" id="password"
+                 name="password"
+                 placeholder="비밀번호를 입력해주세요"
+                 required type="password"/>
+        </div>
+
+        <div>
+          <button type="submit"
+                  class="w-full text-white font-semibold py-3 rounded-md shadow hover:brightness-110 transition"
+                  style="background-color: #27a69a;">
+            로그인
+          </button>
+        </div>
+
+        <div class="flex justify-end items-center text-sm text-gray-400 mt-1">
+          <div class="space-x-2">
+            <a th:href="@{/user/find-id}" class="text-gray-400 hover:text-gray-600 hover:underline no-visited">아이디 찾기</a>
+            <span>|</span>
+            <a th:href="@{/user/find-password}" class="text-gray-400 hover:text-gray-600 hover:underline no-visited">비밀번호 찾기</a>
+          </div>
+        </div>
+
+        <!-- 구글 로그인 -->
+        <div class="mt-6 flex flex-col gap-3">
+          <a href="/oauth2/authorization/google"
+             class="w-full flex items-center justify-center gap-2 border border-gray-300 bg-white text-gray-700 py-3 rounded-md shadow hover:bg-gray-100 transition">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5" alt="Google"/>
+            <span class="font-medium">Google 계정으로 시작하기</span>
+          </a>
+        </div>
+
+        <div class="text-center mt-6 text-sm">
+          <a th:href="@{/user/signup}" class="text-black underline hover:text-gray-900">
+            회원가입
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('error') === 'already_local') {
+      alert('해당 이메일로 가입된 계정이 있습니다. 기존 계정으로 로그인해주세요.');
+      window.location.href = '/user/signin';
+    }
+  </script>
+
+  <script>
+    document.getElementById("signin-form").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const username = document.getElementById("userAccount").value;
+      const password = document.getElementById("password").value;
+
+      try {
+        const res = await fetch("/api/auth/signin", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          credentials: "include", // 쿠키 저장을 위해 필요
+          body: JSON.stringify({
+            username,
+            password
+          })
+        });
+
+        if (res.ok) {
+
+          const result = await res.json();
+          const isSurvey = result?.data?.isSurvey;
+
+          alert("로그인 성공");
+
+          if (String(isSurvey) === "false") {
+            location.href = "/surveys";
+          } else {
+            location.href = "/";
+          }
+
+        } else {
+          document.getElementById("error-msg").classList.remove("hidden");
+        }
+      } catch (err) {
+        console.error("로그인 중 오류 발생:", err);
+        alert("서버 오류가 발생했습니다.");
+      }
+    });
+  </script>
+</main>
+</body>
+</html>
+

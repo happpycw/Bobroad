@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>초대하기</title>
+  <link rel="stylesheet" th:href="@{/css/meeting/modal/modal.css}" />
+</head>
+<body>
+<div class="modal-header">
+  <h1>초대하기</h1>
+</div>
+<div class="modal" style="width: 50vw; padding: 3vw;">
+  <div>
+    <span class="invite-header">초대할 ID</span>
+
+    <div class="invite-wrapper">
+      <input type="text" id="account" placeholder="초대할 ID를 입력해주세요." class="invite-input"/>
+      <button onclick="invite()" class="invite-button" style="border: transparent;">초대하기</button>
+    </div>
+  </div>
+
+  <div style="margin-top: 8vh;">
+    <span class="invite-header">초대된 멤버</span>
+    <div th:if="${#lists.isEmpty(invitedList)}" class="invite-list-wrapper empty">
+      초대된 유저가 없습니다.
+    </div>
+    <th:block th:if="${!#lists.isEmpty(invitedList)}">
+      <ul class="invite-list-wrapper scroll-container">
+        <li th:each="user:${invitedList}" class="notification-item invite">
+          <div class="user">
+            <span th:text="${user.nickname}" class="nickname">닉네임</span>
+            <span th:text="${user.userAccount}" class="account">아이디</span>
+          </div>
+        </li>
+      </ul>
+    </th:block>
+  </div>
+
+</div>
+
+<script th:inline="javascript">
+  function invite(){
+    const meetingId = /*[[${meetingId}]]*/ 0;
+    const account = document.getElementById("account").value;
+    console.log(meetingId, account);
+
+    fetch(`/api/v1/meeting/invite/${meetingId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        meetingId: meetingId,
+        account: account
+      })
+    })
+    .then(async (res) => {
+      if(res.ok){
+        window.location.href = meetingId + ".html";
+      } else {
+        const error = await res.json();
+        alert(error.message);
+      }
+    })
+    .catch(error => {
+      alert(error.message);
+    });
+  }
+</script>
+</body>
+</html>

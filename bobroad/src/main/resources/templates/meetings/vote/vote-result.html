@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}"
+>
+<head>
+  <meta charset="UTF-8">
+  <title>모임 결과</title>
+  <link rel="stylesheet" th:href="@{/css/meeting/vote-result.css}"/>
+</head>
+<body>
+<main layout:fragment="content">
+    <div>
+      <span th:text="${vote.title}" style="font-size: 40px; font-weight: bold; margin-left: 10px;"></span>
+      <div class="detail-wrapper">
+        <div style="font-weight: bold;">모임 일시: <span th:text="${#temporals.format(vote.meetingDate, 'yyyy년 MM월 dd일 EEE HH시 mm분')}">모임 일시</span></div>
+        <div>투표 설명: <span th:text="${vote.description}">투표 설명</span></div>
+      </div>
+    </div>
+
+    <div class="restaurant-card">
+      <div style="justify-items: start;">
+        <div th:text="${vote.restaurant.getName()}" style="font-size: 20px; font-weight: bold;">식당명</div>
+        <div th:text="${vote.restaurant.getAddress()}">주소</div>
+      </div>
+      <a th:href="@{'/restaurant/detail/'+ ${vote.restaurant.getId()}}" class="restaurant-move">식당 보기</a>
+    </div>
+
+  <div class="result-wrapper">
+    <span style="font-size: 30px; font-weight: bold; margin-left: 10px; ">투표 결과</span>
+    <div class="attendance-wrapper">
+      <!-- 참석 O -->
+      <div class="result-card">
+        <div style="display: flex; gap: 10px;">
+          <div style="font-size: 17px; font-weight: bold; margin-bottom: 5px;">참석 O</div>
+          <div><span th:text="${joinedCount}"></span>명</div>
+        </div>
+        <div class="scroll-container">
+          <div th:each="member : ${joinedList}" class="member">
+            <div th:text="${member}"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 참석 X -->
+      <div class="result-card">
+        <div style="display: flex; gap: 10px;">
+          <div style="font-size: 17px; font-weight: bold; margin-bottom: 5px;">참석 X</div>
+          <div><span th:text="${notJoinedCount}"></span>명</div>
+        </div>
+        <div class="scroll-container">
+          <div th:each="member : ${notJoinedList}" class="member">
+            <div th:text="${member}"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+</body>
+</html>

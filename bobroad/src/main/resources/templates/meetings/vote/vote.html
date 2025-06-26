@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+  <meta charset="UTF-8">
+  <title>투표 상세</title>
+  <link rel="stylesheet" th:href="@{/css/meeting/vote-detail.css}"/>
+</head>
+<body>
+<main layout:fragment="content">
+  <div class="container">
+    <div>
+      <span th:text="${vote.title}" style="font-size: 40px; font-weight: bold; margin-left: 10px;"></span>
+      <div class="detail-wrapper">
+        <div style="font-weight: bold;">모임 일시: <span th:text="${#temporals.format(vote.meetingDate, 'yyyy년 MM월 dd일 EEE HH시 mm분')}">모임 일시</span></div>
+        <div>투표 설명: <span th:text="${vote.description}">투표 설명</span></div>
+        <div>마감 기한: <span th:text="${#temporals.format(vote.endedAt, 'MM월 dd일 HH시 mm분')}">투표 설명</span>까지</div>
+      </div>
+    </div>
+
+    <div class="restaurant-card">
+      <div style="justify-items: start;">
+        <div th:text="${vote.restaurant.getName()}" style="font-size: 20px; font-weight: bold;">식당명</div>
+        <div th:text="${vote.restaurant.getAddress()}">주소</div>
+      </div>
+      <a th:href="@{'/restaurant/detail/'+ ${vote.restaurant.getId()}}" class="restaurant-move">식당 보기</a>
+    </div>
+
+    <div class="radio-group">
+      <label class="radio-label">
+        <!-- 투표하기로 들어올 경우 Default 값을 참석 O로 고정 -->
+        <input type="radio" name="isJoined" value="true"
+               th:checked="${isJoined == null or isJoined == true}" />
+        <span>참석 O</span>
+      </label>
+      <label class="radio-label">
+        <input type="radio" name="isJoined" value="false"
+               th:checked="${isJoined == false}" />
+        <span>참석 X</span>
+      </label>
+    </div>
+
+
+    <div class="button-wrapper">
+      <button type="button" onclick="vote()" class="complete">
+        투표하기
+      </button>
+    </div>
+    <input type="hidden" id="id" th:value="${vote.id}" />
+  </div>
+
+  <script th:inline="javascript">
+    function vote(){
+      const id = document.getElementById("id").value;
+      const isJoined = document.querySelector('input[name="isJoined"]:checked').value;
+
+      if(confirm("투표하시겠습니까?")){
+        fetch(`/api/v1/vote/${id}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            voteId: parseInt(id),
+            isJoined: isJoined === 'true'
+          })
+        })
+        .then(res => {
+          if (res.ok) {
+            alert("투표가 완료되었습니다!");
+          } else {
+            alert("마감된 투표로 투표를 실패했습니다.\n모임 화면으로 이동합니다.");
+          }
+          window.location.href = "/meetings/vote-result/"+id;
+        });
+      }
+    }
+  </script>
+</main>
+
+</body>
+</html>

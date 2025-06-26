@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{Layout}">
+<head>
+    <meta charset="UTF-8"/>
+    <title layout:fragment="title">내 북마크 리스트</title>
+</head>
+<body>
+<main layout:fragment="content" style="padding-left: 20vw; padding-right: 20vw; padding-top: 5vw; width: 100%;">
+    <div class="flex items-center gap-4 mb-5">
+        <img src="/img/bookmark.png" alt="북마크" class="w-19 h-19"/>
+        <div style="font-size: 30px; font-weight: bold;">내 북마크 리스트</div>
+    </div>
+
+    <div style="max-height: 80vh; overflow-y: auto;">
+        <div th:each="bookmark, idx : ${bookmarks}" class="">
+            <div class="bookmark-card bg-white border rounded-lg shadow-sm p-8 mb-5
+                        hover:shadow-md transition flex flex-col justify-between w-full"
+                 th:attr="data-link=@{/restaurant/detail/{id}(id=${bookmark.restaurantId})}">
+                <div class="flex items-start justify-between">
+                    <h3 class="text-xl font-bold text-gray-900 flex-1 -mt-1"
+                        th:text="${bookmark.restaurantName}">식당명</h3>
+
+                    <button type="button"
+                            class="delete-btn focus:outline-none ml-4"
+                            th:attr="data-restaurant-id=${bookmark.restaurantId}">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             class="h-6 w-6 text-red-400 hover:text-red-600"
+                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+
+                <div class="mt-3 text-sm text-gray-600 space-y-1">
+                    <p th:text="${bookmark.branch}">지점명</p>
+                    <p th:text="${bookmark.category}">카테고리</p>
+                    <p th:text="${bookmark.businessTime}">영업시간</p>
+                    <p th:text="${bookmark.restaurantAddress}">주소</p>
+                </div>
+            </div>
+        </div>
+
+        <th:block th:if="${#lists.isEmpty(bookmarks)}">
+            <div class="border border-gray-300 rounded-lg h flex items-center justify-center font-bold" style="height: 70vh">
+                <div class="text-center text-gray-500 text-xl">
+                    등록된 북마크가 없습니다.<br>북마크를 추가해 나만의 식당 리스트를 만들어 보세요!
+                </div>
+            </div>
+        </th:block>
+
+
+    </div>
+
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.bookmark-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const link = card.getAttribute('data-link');
+                    window.location.href = link;
+                });
+            });
+
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const restaurantId = btn.getAttribute('data-restaurant-id');
+                    fetch(`/api/bookmarks/toggle/${restaurantId}`, {
+                        method: 'POST'
+                    })
+                        .then(res => {
+                            if (!res.ok) throw new Error('Status ' + res.status);
+                            return res.json();
+                        })
+                        .then(data => {
+                            if (!data.added) {
+                                btn.closest('.bookmark-card').remove();
+                                alert('북마크가 해제되었습니다.');
+                            } else {
+                                alert('북마크가 추가되었습니다.');
+                            }
+                        })
+                        .catch(err => {
+                            console.error('[Bookmark] 오류:', err);
+                            alert('북마크 처리 중 오류가 발생했습니다.');
+                        });
+                });
+            });
+        });
+    </script>
+</main>
+</body>
+</html>

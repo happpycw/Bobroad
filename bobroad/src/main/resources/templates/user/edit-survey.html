@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko"
+      layout:decorate="~{layout}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>설문조사 수정</title>
+</head>
+<body>
+<main layout:fragment="content">
+  <div class="flex justify-center items-center min-h-screen bg-white-100">
+    <div class="bg-gray-100 p-12 rounded-lg shadow-md w-full max-w-3xl">
+      <div class="text-2xl font-bold text-center mb-16">선호 목록 수정</div>
+      <form class="space-y-4" method="post"
+            th:action="@{/mypage/edit-prefer}" th:object="${surveyRequest}">
+
+        <!-- 설문 있는 경우 -->
+        <div th:if="${hasSurvey}">
+          <div>
+            <label class="block font-semibold mb-1" for="companyLocation">회사 위치</label>
+            <select
+                class="no-style w-full border border-gray-300 px-3 py-2 rounded bg-blue appearance-auto"
+                id="companyLocation"
+                th:field="*{companyLocation}">
+              <option th:each="item : ${companylocation}"
+                      th:text="${item.label}"
+                      th:value="${item.name()}">
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-semibold mb-1" for="purpose">식사 목적</label>
+            <select
+                class="no-style w-full border border-gray-300 px-3 py-2 rounded bg-white appearance-auto"
+                id="purpose"
+                th:field="*{purpose}">
+              <option th:each="item : ${purpose}"
+                      th:text="${item.label}"
+                      th:value="${item.name()}">
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-semibold mb-1" for="companion">주로 함께 식사하는 사람</label>
+            <select
+                class="no-style w-full border border-gray-300 px-3 py-2 rounded bg-white appearance-auto"
+                id="companion"
+                th:field="*{companion}">
+              <option th:each="item : ${companion}"
+                      th:text="${item.label}"
+                      th:value="${item.name()}">
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-semibold mb-1" for="favoriteCategory">좋아하는 음식 종류</label>
+            <select
+                class="no-style w-full border border-gray-300 px-3 py-2 rounded bg-white appearance-auto"
+                id="favoriteCategory"
+                th:field="*{favoriteCategory}">
+              <option th:each="item : ${favoritecategory}"
+                      th:text="${item.label}"
+                      th:value="${item.name()}">
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-semibold mb-1" for="preferredMood">선호 분위기</label>
+            <select
+                class="no-style w-full border border-gray-300 px-3 py-2 rounded bg-white appearance-auto"
+                id="preferredMood"
+                th:field="*{preferredMood}">
+              <option th:each="item : ${preferredmood}"
+                      th:text="${item.label}"
+                      th:value="${item.name()}">
+              </option>
+            </select>
+          </div>
+
+          <div class="flex justify-center" style="margin-top: 35px;">
+            <button class="w-1/2 text-white py-3 rounded" style="background-color: #27a69a;"
+                    type="submit">
+              수정하기
+            </button>
+          </div>
+        </div>
+
+        <!-- 설문 없는 경우 -->
+        <div class="text-center mt-10 mb-10" th:if="${!hasSurvey}">
+          <p class="text-red-600 font-semibold text-lg mb-8">
+            아직 설문이 제출되지 않았습니다.
+          </p>
+          <a class="inline-block px-6 py-3 text-white font-semibold rounded transition"
+             href="/surveys"
+             style="background-color: #27a69a;">
+            설문하러 가기
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script th:inline="javascript">
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('success')) {
+      alert('선호 목록이 수정되었습니다.');
+    }
+  </script>
+</main>
+</body>
+</html>

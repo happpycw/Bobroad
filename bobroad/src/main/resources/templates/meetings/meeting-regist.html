@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}"
+>
+<head>
+    <meta charset="UTF-8">
+    <title>모임 생성</title>
+    <link rel="stylesheet" th:href="@{/css/meeting/meeting-regist.css}" />
+</head>
+<body>
+<main layout:fragment="content">
+    <h3 style="font-weight: bold;">모임 생성</h3>
+    <div class="container">
+        <form id="meetingForm" th:action="@{/meetings/regist}" th:object="${meetingRegistRequest}" onsubmit="return confirmRegist();" method="post">
+            <div class="input-group">
+                <span>모임 이름</span>
+                <div class="meeting-name">
+                    <input type="text" th:field="*{title}" placeholder="모임명을 입력해 주세요" />
+                    <div th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="error"></div>
+                </div>
+            </div>
+            <div class="input-group">
+                <span>모임 설명</span>
+                <input type="text" th:field="*{description}" placeholder="모임 설명을 입력해 주세요." />
+            </div>
+            <div class="input-group">
+                <span>모임 목적</span>
+                <select th:field="*{purpose}">
+                    <option value="">모임 주제를 선택해 주세요.</option>
+                    <option th:each="p : ${purpose}"
+                            th:value="${p}"
+                            th:text="${p.displayName}">
+                    </option>
+                </select>
+                <div th:if="${#fields.hasErrors('purpose')}" th:errors="*{purpose}" class="error"></div>
+            </div>
+
+
+            <div>
+                <span>더치페이 여부</span>
+                <div class="radio-group">
+                    <label>
+                        <input type="radio" th:field="*{isDutch}" th:value="true"/>
+                        <span>네, 더치페이 예정이에요!</span>
+                    </label>
+                    <label>
+                        <input type="radio" th:field="*{isDutch}" th:value="false" checked />
+                        <span>아니요, 더치페이가 없어요!</span>
+                    </label>
+                </div>
+            </div>
+            <div class="button-wrapper">
+                <button type="submit" class="complete">생성하기</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function confirmRegist() {
+            return confirm("모임을 생성하겠습니까?");
+        }
+    </script>
+</main>
+</body>
+</html>

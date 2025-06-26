@@ -1,0 +1,157 @@
+body{
+  background-color: #D9D9D9;
+  padding: 5vw 10vw;
+  align-content: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal {
+  width: 70vw;
+  background: #fff;
+  height: 65vh;
+  overflow-y: auto;
+  border-radius: 8px;
+}
+
+.modal-close {
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.notification-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.notification-item {
+  display: flex;
+  min-height: 30px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 30px;
+  border-bottom: 1px solid #eee;
+}
+.notification-item.invite{
+  padding: 10px 15px;
+}
+
+.message {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
+
+.button {
+  padding: 6px 12px;
+  font-size: 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 6px;
+  align-self: center;
+}
+
+.accept {
+  background-color: #2ea44f;
+  color: white;
+}
+
+.reject {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.vote {
+  background-color: #27a69a;
+  color: white;
+}
+
+.user{
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.nickname{
+  font-size: 22px;
+}
+
+.account{
+  color: grey;
+}
+
+.bookmark{
+  width: 3vw;
+  height: 3vw;
+}
+
+.invite-button-wrapper {
+  width: 77%;
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.invite-button {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #27a69a;
+  border-radius: 8px;
+  color: white;
+  font-size: 15px;
+  height: auto;
+  cursor: pointer;
+}
+
+.invite-header{
+  font-size: 20px;
+  font-weight: bold;
+}
+.invite-wrapper{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2vw;
+  margin-top: 1.5vh;
+
+}
+.invite-input{
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #D9D9D9;
+  border-radius: 5px;
+}
+
+.empty-alarm{
+  height: 60vh;
+  font-size: large;
+  font-weight: bold;
+  text-align: center;
+  align-content: center;
+}
+
+.invite-list-wrapper{
+  width: 100%;
+  height: 33.5vh;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+  list-style-type: none;
+  padding-left: 0;
+}
+.invite-list-wrapper.empty{
+  font-size: large;
+  font-weight: bold;
+  text-align: center;
+  align-content: center;
+  margin-top: 10px;
+}
+.scroll-container {
+  max-height: 37vh;
+  overflow-y: auto;
+}
