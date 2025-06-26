@@ -237,12 +237,10 @@ https://www.notion.so/20f15a01205481778ececdeee9546ed8
 ## 📌 관리자 (모임)
 
 ![스크린샷 2025-06-26 185358](https://github.com/user-attachments/assets/a53486d9-ee95-4492-9aca-d063eb770e97)
-![스크린샷 2025-06-26 185358](https://github.com/user-attachments/assets/a53486d9-ee95-4492-9aca-d063eb770e97)
 
 
 ## 📌 관리자 (사용자)
 
-![스크린샷 2025-06-26 185416](https://github.com/user-attachments/assets/0eb4a68d-4e45-48dd-b02c-aa47e2ea7cd4)
 ![스크린샷 2025-06-26 185416](https://github.com/user-attachments/assets/0eb4a68d-4e45-48dd-b02c-aa47e2ea7cd4)
 
 
